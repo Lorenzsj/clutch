@@ -1,0 +1,13 @@
+[settings]
+  # whitelist is case-sensitive
+  whitelist = ["TslGame.exe", "csgo.exe", "mumble.exe"]
+  unmute_on_quit = true
+  
+[keybindings]
+  # all available keys can be found in readme.md
+  # Do not use @ to represent shift->2
+  # Instead, use toggle = '2' and toggle_mod = 'shift'
+  toggle     = "caps_lock"
+  toggle_mod = ""           # ctrl, shift, alt, win, none, ""
+  quit       = "f10"        # f12 seems to not work on windows 10
+  quit_mod   = "none"
