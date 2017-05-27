@@ -7,105 +7,115 @@ from ctypes import wintypes
 from pycaw.pycaw import AudioUtilities  # https://github.com/AndreMiras/pycaw
 
 
-def app_info():  # debug
-        name = 'Clutch'
-        version = '0.1.0'
-        author = 'Stephen Lorenz'
-        contact = 'steviejlorenz@gmail.com'
+class app_info(object):  # debug
+    name = 'Clutch'
+    version = '0.2.0'
+    author = 'Stephen Lorenz'
+    contact = 'steviejlorenz@gmail.com'
 
+    def __init__(self):
         print('Application: {}\nAuthor: {} ({})\nVersion: {}\n'
-              .format(name, author, contact, version))
+              .format(self.name, self.author, self.contact, self.version))
 
 
-class Clutch(object):
-    def __init__(self, config_filename='conf.toml', muted=False, suspended=False):
-        app_info()  # debug
-
-        self.muted = muted
-        self.suspended = suspended
+class ConfigurationInterface(object):
+    def __init__(self, config_filename='conf.toml'):
+        print('* Initializing Configuration Interface')
         self.config_filename = config_filename
         self.config = self.load_configuration()
+        self.keybinds = {}
+        print('    ', end='')  # HUGE DEBUG - NOT NEEDED
 
         # Start of Configuration
         # [settings]
-        settings = self.config['settings']       # readability
-        self.whitelist = settings['whitelist']   # readability
-        self.music_app = settings['music_app']
-        self.unmute_on_quit = settings['unmute_on_quit']
+        self.settings = self.config['settings']  # readability
+        self.whitelist = self.settings['whitelist']
+        self.music_app = self.settings['music_app']
+        self.unmute_on_quit = self.settings['unmute_on_quit']
 
         # [keybindings]
-        keybindings = self.config['keybindings']  # readability
+        self.keybindings = self.config['keybindings']  # readability
         # VK_CODE is a dictionary that maps a string representation of a key to the key's hexadecimal value (clutch.py)
         # toggle keybind
-        if keybindings['toggle'] in VK_CODE:
-            self.toggle_keybind = VK_CODE[keybindings['toggle']]
+        if self.keybindings['toggle'] in VK_CODE:
+            self.keybindings['toggle'] = VK_CODE[self.keybindings['toggle']]
         else:
             # todo: key capture to rewrite config here
             print('Error: "{}" is not a valid keybind for toggle in {}. Exiting program.'
-                  .format(keybindings['toggle'], config_filename))
+                  .format(self.keybindings['toggle'], config_filename))
             sys.exit(1)
-
         # toggle mod
-        if keybindings['toggle_mod'] in VK_MOD:
-            self.toggle_mod = VK_MOD[keybindings['toggle_mod']]
+        if self.keybindings['toggle_mod'] in VK_MOD:
+            self.keybindings['toggle_mod'] = VK_MOD[self.keybindings['toggle_mod']]
         else:
             # todo: key capture to rewrite config here
             print('Error: "{}" is not a valid keybind for toggle_mod in {}. Exiting program.'
-                  .format(keybindings['toggle_mod'], config_filename))
+                  .format(self.keybindings['toggle_mod'], config_filename))
             sys.exit(1)
 
         # quit keybind
-        if keybindings['quit'] in VK_CODE:
-            self.quit_keybind = VK_CODE[keybindings['quit']]
+        if self.keybindings['quit'] in VK_CODE:
+            self.keybindings['quit'] = VK_CODE[self.keybindings['quit']]
         else:
             # todo: key capture to rewrite config here
             print('Error: "{}" is not a valid keybind for quit in {}. Exiting program.'
-                  .format(keybindings['quit'], config_filename))
+                  .format(self.keybindings['quit'], config_filename))
             sys.exit(1)
 
         # quit mod
-        if keybindings['quit_mod'] in VK_MOD:
-            self.quit_mod = VK_MOD[keybindings['quit_mod']]
+        if self.keybindings['quit_mod'] in VK_MOD:
+            self.keybindings['quit_mod'] = VK_MOD[self.keybindings['quit_mod']]
         else:
             # todo: key capture to rewrite config here
             print('Error: "{}" is not a valid keybind for quit_mod in {}. Exiting program.'
-                  .format(keybindings['quit_mod'], config_filename))
+                  .format(self.keybindings['quit_mod'], config_filename))
             sys.exit(1)
 
         # suspend keybind
-        if keybindings['suspend'] in VK_CODE:
-            self.suspend_keybind = VK_CODE[keybindings['suspend']]
+        if self.keybindings['suspend'] in VK_CODE:
+            self.keybindings['suspend'] = VK_CODE[self.keybindings['suspend']]
         else:
             # todo: key capture to rewrite config here
             print('Error: "{}" is not a valid keybind for suspend in {}. Exiting program.'
-                  .format(keybindings['suspend'], config_filename))
+                  .format(self.keybindings['suspend'], config_filename))
             sys.exit(1)
 
         # suspend mod
-        if keybindings['suspend_mod'] in VK_MOD:
-            self.suspend_mod = VK_MOD[keybindings['suspend_mod']]
+        if self.keybindings['suspend_mod'] in VK_MOD:
+            self.keybindings['suspend_mod'] = VK_MOD[self.keybindings['suspend_mod']]
         else:
             # todo: key capture to rewrite config here
             print('Error: "{}" is not a valid keybind for suspend_mod in {}. Exiting program.'
-                  .format(keybindings['suspend_mod'], config_filename))
+                  .format(self.keybindings['suspend_mod'], config_filename))
             sys.exit(1)
-
         # End of Configuration
-        print(self.config_filename, 'successfully loaded.\n')
+        print(self.config_filename, 'successfully loaded.')
+        print('* Configuration Interface started\n')
 
     # load configuration from a .toml file into a dictionary
     def load_configuration(self):
+        print('    ', end='')  # HUGE DEBUG - NOT NEEDED
         print('Loading', self.config_filename)
         try:
             with open(self.config_filename, 'rb') as config_file:
                 config = toml.load(config_file)
         except toml.TomlError:
-            config = None
+            # config = None  # debug
+            print('    ', end='')  # HUGE DEBUG - NOT NEEDED
             parse_error = sys.exc_info()  # debug
             print(parse_error)  # debug
+            print('    ', end='')  # HUGE DEBUG - NOT NEEDED
             print('An error occurred when loading {}. Exiting program'.format(self.config_filename))
             sys.exit(1)
         return config
+
+
+class AudioInterface(object):
+    def __init__(self, whitelist, muted=False):
+        print('* Initializing Audio Interface')
+        self.whitelist = whitelist
+        self.muted = muted
+        print('* Audio Interface started\n')
 
     # unmutes the volume of all processes that are in the whitelist
     def unmute(self):
@@ -129,142 +139,168 @@ class Clutch(object):
         print()  # debug
         self.muted = True  # for toggle, not ideal
 
-# instantiate clutch
-clutch = Clutch()
 
-# todo: put the functions and variables below into a class
-byref = ctypes.byref
-user32 = ctypes.windll.user32
+class HotkeyInterface(object):
+    def __init__(self, keybindings, audio_interface, suspended=False):
+        print('* Initializing Hotkey Interface')
+        self.byref = ctypes.byref  # windows
+        self.user32 = ctypes.windll.user32  # windows
 
-HOTKEYS = {
-    1: (clutch.toggle_keybind, clutch.toggle_mod),
-    2: (clutch.quit_keybind, clutch.quit_mod),
-    3: (clutch.suspend_keybind, clutch.suspend_mod)
-}
+        self.suspended = suspended
+        self.keybindings = keybindings
+        self.audio_interface = audio_interface
+        self.hotkeys = {
+            1: (keybindings['toggle'], keybindings['toggle_mod']),
+            2: (keybindings['quit'], keybindings['quit_mod']),
+            3: (keybindings['suspend'], keybindings['suspend_mod'])
+        }
+        self.hotkey_actions = {
+            1: self.handle_toggle,
+            2: self.handle_quit,
+            3: self.handle_suspend
+        }
+        self.necessary_hotkeys = (2, 3)
+        self.register_hotkeys()
+        print('* Hotkey Interface started\n')
 
+    def register_hotkeys(self):
+        #  registerHotKey takes:
+        #  window handle for WM_HOTKEY messages (None = this thread)
+        #  arbitrary id unique within the thread
+        #  modifiers (MOD_SHIFT, MOD_ALT, MOD_CONTROL, MOD_WIN)
+        #  VK code (either ord ('x') or one of win32con.VK_*)
+        register_error = False
+        for hotkey_id, (vk, modifiers) in self.hotkeys.items():
+            # prints the ID being registered, the key's hex value, and searches VK_CODE for the human-readable name
+            print('    ', end='')  # HUGE DEBUG - NOT NEEDED
+            print('Registering ID', hotkey_id, 'for key:', vk, '({})'
+                  .format(list(VK_CODE.keys())[list(VK_CODE.values()).index(vk)]))  # only for debugging
 
-def handle_toggle():
-    if clutch.suspended:
-        print('Application is suspended. Press {} to reactivate audio toggle.'
-              .format(list(VK_CODE.keys())[list(VK_CODE.values()).index(clutch.suspend_keybind)]))
-    else:
-        if clutch.muted:
-            clutch.unmute()
-        elif not clutch.muted:
-            clutch.mute()
+            if not self.user32.RegisterHotKey(None, hotkey_id, modifiers, vk):
+                register_error = True
+                print('    ', end='')  # HUGE DEBUG - NOT NEEDED
+                print('Error: Unable to register ID:', hotkey_id, 'for key:', vk, '({})'
+                      .format(list(VK_CODE.keys())[list(VK_CODE.values()).index(vk)]))
+                print('    ', end='')  # HUGE DEBUG - NOT NEEDED
+                print('This key may be unavailable for keybinding. Is Clutch already running?')
+                print()
+
+        if register_error:
+            print('    ', end='')  # HUGE DEBUG - NOT NEEDED
+            print('Error: Unable to register all hotkeys. Exiting program.')
+            sys.exit(1)
+        else:
+            print('    ', end='')  # HUGE DEBUG - NOT NEEDED
+            print('All hotkeys were successfully registered.')
+
+    def unregister_hotkeys(self):
+        for hotkey_id, (vk, modifiers) in self.hotkeys.items():
+            print('Unregistering ID', hotkey_id, 'for key:', vk, '({})'
+                  .format(list(VK_CODE.keys())[list(VK_CODE.values()).index(vk)]))
+            self.user32.UnregisterHotKey(None, hotkey_id)
+        print()  # debug
+
+    # the functions below could be better optimized - but they work for now
+    def suspend_hotkeys(self):
+        for hotkey_id in self.hotkeys.keys():
+            if hotkey_id not in self.necessary_hotkeys:  # sketchy debug, proof of concept
+                self.user32.UnregisterHotKey(None, hotkey_id)
+
+    def unsuspend_hotkeys(self):
+        register_error = False
+        for hotkey_id, (vk, modifiers) in self.hotkeys.items():
+            if hotkey_id not in self.necessary_hotkeys:
+                # prints the ID being registered, the key's hex value, and searches VK_CODE for the human-readable name
+                print('Registering ID', hotkey_id, 'for key:', vk, '({})'
+                      .format(list(VK_CODE.keys())[list(VK_CODE.values()).index(vk)]))  # debug
+                if not self.user32.RegisterHotKey(None, hotkey_id, modifiers, vk):
+                    register_error = True
+                    print('Error: Unable to register ID:', hotkey_id)
+                    print('This key may be unavailable for keybinding. Is Clutch already running?')
+
+        if register_error:
+            print('     Error: Unable to re-register hotkey. Exiting program.\n')  # wait till loop finishes for more info
+            sys.exit(1)
+        else:
+            print('All hotkeys were successfully re-registered.\n')
+
+    def handle_toggle(self):
+        if self.audio_interface.muted:
+            self.audio_interface.unmute()
+        elif not self.audio_interface.muted:
+            self.audio_interface.mute()
         else:
             print('Error: Unable to toggle audio. Exiting program.')
-            handle_quit()
+            self.handle_quit()
 
+    def handle_quit(self):
+        if True:
+            print('Unmuting all processes before closing the application.')
+            if self.audio_interface.muted:
+                self.audio_interface.unmute()
+            else:
+                print('All processes already unmuted.\n')
+        self.unregister_hotkeys()
+        self.user32.PostQuitMessage(0)
 
-def handle_quit():
-    if clutch.unmute_on_quit:
-        print('Unmuting all processes before closing the application.')
-        if clutch.muted:
-            clutch.unmute()
+    def handle_suspend(self):
+        if self.suspended:
+            self.suspended = False
+            print('Application has been unsuspended.\n')
+            self.unsuspend_hotkeys()
+        elif not self.suspended:
+            self.suspended = True
+            print('Application has been suspended.')
+            self.suspend_hotkeys()
         else:
-            print('All processes already unmuted.\n')
-    print('Exiting Clutch.')
-    user32.PostQuitMessage(0)
+            print('Error: Unable to toggle suspend. Exiting program.')
+            self.handle_quit()
 
 
-def handle_suspend():  # this should be moved into another class at some point
-    if clutch.suspended:
-        clutch.suspended = False
-        print('Application has been unsuspended.\n')
-        unsuspend_hotkeys()
-    elif not clutch.suspended:
-        clutch.suspended = True
-        print('Application has been suspended.')
-        suspend_hotkeys()
-    else:
-        print('Error: Unable to toggle suspend. Exiting program.')
-        handle_quit()
+class WindowsInterface(object):
+    def __init__(self, hotkey_interface):
+        print('* Initializing Windows Interface')
+        self.byref = ctypes.byref
+        self.user32 = ctypes.windll.user32
+        self.hotkey_interface = hotkey_interface
+        print('* Windows Interface started\n')
+
+    def message_loop(self):
+        # Home-grown Windows message loop: does
+        # just enough to handle the WM_HOTKEY
+        # messages and pass everything else along.
+        # todo: replace with qt
+        try:
+            msg = wintypes.MSG()
+            while self.user32.GetMessageA(self.byref(msg), None, 0, 0) != 0:
+                if msg.message == win32con.WM_HOTKEY:
+                    action_to_take = self.hotkey_interface.hotkey_actions.get(msg.wParam)
+                    if action_to_take:
+                        action_to_take()
+
+                    self.user32.TranslateMessage(self.byref(msg))
+                    self.user32.DispatchMessageA(self.byref(msg))
+        finally:
+            print('Exiting Clutch.')
 
 
-HOTKEY_ACTIONS = {
-    1: handle_toggle,
-    2: handle_quit,
-    3: handle_suspend
-}
+class Clutch(object):
+    def __init__(self):
+        app_info()
+        self.config_interface = ConfigurationInterface()
+        self.audio_interface = AudioInterface(self.config_interface.whitelist)
+        self.hotkey_interface = HotkeyInterface(self.config_interface.keybindings, self.audio_interface)
+        self.windows_interface = WindowsInterface(self.hotkey_interface)
 
-
-def register_hotkeys():
-    #  RegisterHotKey takes:
-    #  Window handle for WM_HOTKEY messages (None = this thread)
-    #  arbitrary id unique within the thread
-    #  modifiers (MOD_SHIFT, MOD_ALT, MOD_CONTROL, MOD_WIN)
-    #  VK code (either ord ('x') or one of win32con.VK_*)
-    register_error = False
-    for hotkey_id, (vk, modifiers) in HOTKEYS.items():
-        # prints the ID being registered, the key's hex value, and searches VK_CODE for the human-readable name
-        print('Registering ID', hotkey_id, 'for key:', vk,
-              '({})'.format(list(VK_CODE.keys())[list(VK_CODE.values()).index(vk)]))  # unnecessary, only for debugging
-
-        if not user32.RegisterHotKey(None, hotkey_id, modifiers, vk):
-            register_error = True
-            print('Error: Unable to register ID:', hotkey_id)
-            print('This key may be unavailable for keybinding. Is Clutch already running?')
-
-    if register_error:
-        print('Error: Unable to register hotkey. Exiting program.\n')  # wait until loop is finished to get more info
-        sys.exit(1)
-    else:
-        print('All hotkeys were successfully registered.\n')
-
-
-def unregister_hotkeys():
-    for hotkey_id in HOTKEYS.keys():
-        user32.UnregisterHotKey(None, hotkey_id)
-
-
-necessary_hotkeys = (2, 3)  # no magic numbers - ignore quit and suspend hotkeys because they are vital
-
-# the functions below could be better optimized - but they work for now
-def suspend_hotkeys():
-    for hotkey_id in HOTKEYS.keys():
-        if hotkey_id not in necessary_hotkeys:  # sketchy debug, proof of concept
-            user32.UnregisterHotKey(None, hotkey_id)
-
-def unsuspend_hotkeys():
-    register_error = False
-    for hotkey_id, (vk, modifiers) in HOTKEYS.items():
-        if hotkey_id not in necessary_hotkeys:
-            # prints the ID being registered, the key's hex value, and searches VK_CODE for the human-readable name
-            print('Registering ID', hotkey_id, 'for key:', vk,'({})'
-                  .format(list(VK_CODE.keys())[list(VK_CODE.values()).index(vk)]))  # unnecessary, only for debugging
-
-            if not user32.RegisterHotKey(None, hotkey_id, modifiers, vk):
-                register_error = True
-                print('Error: Unable to register ID:', hotkey_id)
-                print('This key may be unavailable for keybinding. Is Clutch already running?')
-
-    if register_error:
-        print('Error: Unable to re-register hotkey. Exiting program.\n')  # wait till loop finishes for more info
-        sys.exit(1)
-    else:
-        print('All hotkeys were successfully re-registered.\n')
+    def run(self):
+        print('* Running Cluch\n')
+        self.windows_interface.message_loop()
 
 
 def main():
-    register_hotkeys()
-    # Home-grown Windows message loop: does
-    # just enough to handle the WM_HOTKEY
-    # messages and pass everything else along.
-    # todo: replace with qt
-    try:
-        msg = wintypes.MSG()
-        while user32.GetMessageA(byref(msg), None, 0, 0) != 0:
-            if msg.message == win32con.WM_HOTKEY:
-                action_to_take = HOTKEY_ACTIONS.get(msg.wParam)
-                if action_to_take:
-                    action_to_take()
-
-                user32.TranslateMessage(byref(msg))
-            user32.DispatchMessageA(byref(msg))
-
-    finally:
-        unregister_hotkeys()
+    app = Clutch()
+    print('hey')
+    app.run()
 
 if __name__ == "__main__":
     main()
