@@ -188,3 +188,7 @@ tmtagsHistory
 *.sublime-project
 *.sublime-workspace
 .bundle
+
+rsc
+build
+desktop.ini
