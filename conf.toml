@@ -1,7 +1,9 @@
+# you must include the "" marks around your input unless it is true/false or a ["list"]
 [settings]
   # whitelist is case-sensitive
-  whitelist = ["TslGame.exe", "csgo.exe", "mumble.exe"]
-  unmute_on_quit = true
+  whitelist = ["TslGame.exe", "csgo.exe", "mumble.exe"]  # list
+  music_app = "chrome.exe"   # string
+  unmute_on_quit = true      # bool
   
 [keybindings]
   # all available keys can be found in readme.md
