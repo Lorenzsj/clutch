@@ -1,17 +1,27 @@
 # you must include the "" marks around your input unless it is true/false or a ["list"]
 [settings]
   # whitelist is case-sensitive
-  whitelist = ["TslGame.exe", "csgo.exe", "mumble.exe"]  # list
-  music_app = "chrome.exe"   # string
-  unmute_on_quit = true      # bool
-  
+  whitelist      = ["TslGame.exe", "csgo.exe", "mumble.exe"]  # list
+  unmute_on_quit = true         # bool
+
+ [music]
+ # music_player is case-sensitive
+ music_player    = "chrome.exe" # string
+ volume_increase = 0.05         # float - lowest value is 0.0, max value is 1.0
+ volume_decrease = 0.10         # float - lowest value is 0.0, max value is 1.0
+
+
 [keybindings]
   # all available keys can be found in readme.md
   # Do not use @ to represent shift->2
   # Instead, use toggle = '2' and toggle_mod = 'shift'
-  toggle      = "caps_lock"
-  toggle_mod  = ""           # ctrl, shift, alt, win, none, ""
-  quit        = "f10"        # f12 seems to not work on windows 10
-  quit_mod    = "none"
-  suspend     = "f9"
-  suspend_mod = "none"
+  toggle          = "caps_lock"
+  toggle_mod      = ""           # ctrl, shift, alt, win, none, ""
+  volume_up       = "f8"
+  volume_up_mod   = "none"
+  volume_down     = "f7"
+  volume_down_mod = "none"
+  quit            = "f10"        # f12 seems to not work on windows 10
+  quit_mod        = "none"
+  suspend         = "f9"
+  suspend_mod     = "none"
